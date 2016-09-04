@@ -35,5 +35,28 @@
 
 int main(){
 
+try { xercesc::XMLPlatformUtils::Initialize(); }
+	catch (const xercesc::XMLException& toCatch) {
+		char* message = xercesc::XMLString::transcode(toCatch.getMessage());
+		std::cout << "Error during initialization! :\n"
+			<< message << "\n";
+		xercesc::XMLString::release(&message);
+		return 1;
+	}
+	//CLASS
+	xercesc::XercesDOMParser* parser = new xercesc::XercesDOMParser();
+	ParserErrorHandler parserErrorHandler;
+	parser->setErrorHandler(&parserErrorHandler);
+	parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+	parser->setDoNamespaces(true);
+	parser->setDoSchema(true);
+	parser->setValidationConstraintFatal(true);
+	parser->loadGrammar(xercesc::XMLString::transcode("classDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
+	parser->parse(xercesc::XMLString::transcode("classDiagram.xml"));
+	if (parser->getErrorCount() == 0)
+		std::cout << "CLASS XML file validated against the schema successfully\n" << std::endl;
+	else
+		std::cout << "XML file doesn't conform to the schema\n" << std::endl;
+
 return 0;
 }
