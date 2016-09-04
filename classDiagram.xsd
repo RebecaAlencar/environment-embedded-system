@@ -1,0 +1,150 @@
+<?xml version="1.0" ?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	
+	<xs:simpleType name="moduleType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="hw" />
+			<xs:enumeration value="sw" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="modifierType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="private" />
+			<xs:enumeration value="protected" />
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<xs:element name="diagram">
+		<xs:complexType>
+			<xs:sequence>
+			
+				<xs:element name="modules" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="module" minOccurs="0" maxOccurs="unbounded">
+
+								<xs:complexType>
+								
+									<xs:sequence>
+										<xs:element name="attributes" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:attribute name="name" type="xs:string" />
+															<xs:attribute name="type" type="xs:string" />
+															<xs:attribute name="modifier" type="modifierType" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										
+										<xs:element name="methods" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="method" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="parameters" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="name" type="xs:string" />
+																					<xs:attribute name="type" type="xs:string" />
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="name" type="xs:string" />
+															<xs:attribute name="type" type="xs:string" />
+															<xs:attribute name="modifier" type="modifierType" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										
+										<xs:element name="services" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="service" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="parameters" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="name" type="xs:string" />
+																					<xs:attribute name="type" type="xs:string" />
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="name" type="xs:string" />
+															<xs:attribute name="type" type="xs:string" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									
+									<xs:attribute name="name" type="xs:string" />
+									<xs:attribute name="type" type="moduleType" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				
+				
+				<xs:element name="transactions" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="transaction" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="caller" type="xs:string" />
+										<xs:element name="callee" type="xs:string" />
+										<xs:element name="service" type="xs:string" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:key name="moduleName">
+			<xs:selector xpath="./modules/module" />
+			<xs:field xpath="@name" />
+		</xs:key>
+		<xs:key name="serviceName">
+			<xs:selector xpath="./modules/module/services/service" />
+			<xs:field xpath="@name" />
+		</xs:key>
+		
+		<xs:keyref name="callerModuleName" refer="moduleName">
+			<xs:selector xpath="./transactions/transaction" />
+			<xs:field xpath="caller" />
+		</xs:keyref>
+		<xs:keyref name="calleeModuleName" refer="moduleName">
+			<xs:selector xpath="./transactions/transaction" />
+			<xs:field xpath="callee" />
+		</xs:keyref>
+		<xs:keyref name="calleeServiceName" refer="serviceName">
+			<xs:selector xpath="./transactions/transaction" />
+			<xs:field xpath="service" />
+		</xs:keyref>
+	</xs:element>
+</xs:schema>
