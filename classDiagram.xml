@@ -1,0 +1,96 @@
+<diagram>
+	<modules>
+		<module name="ReadPPM" type="sw">
+			<attributes>
+				<attribute name="columns" type="int" modifier="private"/>
+				<attribute name="rows" type="int" modifier="private"/>
+				<attribute name="rgb_max" type="int" modifier="private"/>
+			</attributes>
+			<methods>
+				<method name="make_pixels" type="void" modifier="public">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="read_file" type="FILE*" modifier="private">
+					<parameters>
+						<parameter name="name" type="string" />
+					</parameters>
+				</method>
+			</methods>
+			<services>
+			</services>
+		</module>
+		<module name="Converte" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="converterYCRCB" type="int" modifier="public">
+					<parameters>
+						<parameter name="pRGB" type="int*"/>
+					</parameters>
+				</method>
+			</methods>
+			<services >
+				<service name="converterYCRCB" type="int">
+					<parameters>
+						<parameter name="pRGB" type="int*"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		<module name="Limiariza" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="limiarizarYCRCB" type="int" modifier="public">
+					<parameters>
+						<parameter name="pixelrgb" type="int*"/>
+					</parameters>
+				</method>
+			</methods>
+			<services >
+				<service name="limiarizarYCRCB" type="int">
+					<parameters>
+						<parameter name="pixelrgb" type="int*"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		<module name="WritePPM" type="sw">
+			<attributes>
+				<attribute name="columns" type="int" modifier="private"/>
+				<attribute name="rows" type="int" modifier="private"/>
+			</attributes>
+			<methods>
+				<method name="writeFile" type="bool" modifier="public">
+					<parameters>
+						<parameter name="file" type="FILE*" />
+						<parameter name="blackwhite" type="int" />
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="writeFile" type="bool">
+					<parameters>
+						<parameter name="file" type="FILE*" />
+						<parameter name="blackwhite" type="int" />
+					</parameters>
+				</service>
+			</services>
+		</module>
+	</modules>
+	<transactions>
+		<transaction>
+			<caller>ReadPPM</caller>
+			<callee>Converte</callee>
+		</transaction>
+		<transaction>
+			<caller>Converte</caller>
+			<callee>Limiariza</callee>
+		</transaction>
+		<transaction>
+			<caller>ReadPPM</caller>
+			<callee>WritePPM</callee>
+		</transaction>
+	</transactions>
+</diagram>
