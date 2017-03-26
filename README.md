@@ -5,6 +5,6 @@
 -  xerces-c
 - systemc-2.3.1 (To compiler the output files)
 
-#Authors
+# Authors
 - Rafael Carvalho (https://github.com/rafaeltmc)
 - Rebeca Alencar 
