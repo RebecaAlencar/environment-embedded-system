@@ -32,6 +32,21 @@
 #include "ExecutionEnvironment.hpp"
 #include "ParserErrorHandler.hpp"
 
+void setMethod(std::list<Method*> *mylist, std::string name_toFind){
+    for (std::list<Method*>::iterator it=mylist->begin(); it != mylist->end(); ++it){
+         if((*it)->getName() == name_toFind){
+         		(*it)->setService(1);
+         	}
+         }
+}
+
+Module* findModule (std::list<Module*> *mylist, std::string toFind){
+   for (std::list<Module*>::iterator it = mylist->begin(); it != mylist->end(); ++it)
+         if((*it)->getName() == toFind){
+              return *it;
+          }
+    return NULL;
+}
 
 int main(){
 
@@ -52,11 +67,243 @@ try { xercesc::XMLPlatformUtils::Initialize(); }
 	parser->setDoSchema(true);
 	parser->setValidationConstraintFatal(true);
 	parser->loadGrammar(xercesc::XMLString::transcode("classDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
-	parser->parse(xercesc::XMLString::transcode("classDiagram.xml"));
+	parser->parse(xercesc::XMLString::transcode("input/classDiagram.xml"));
 	if (parser->getErrorCount() == 0)
-		std::cout << "CLASS XML file validated against the schema successfully\n" << std::endl;
-	else
-		std::cout << "XML file doesn't conform to the schema\n" << std::endl;
+        std::cout << "CLASS XML file validated against the schema successfully\n" << std::endl;
+    else
+        std::cout << "XML file doesn't conform to the schema\n" << std::endl;
 
+	xercesc::DOMElement* docRootNode;
+	xercesc::DOMDocument* doc;
+	xercesc::DOMNodeIterator* walker;
+	doc = parser->getDocument();
+	docRootNode = doc->getDocumentElement();
+
+	try { walker = doc->createNodeIterator(docRootNode,xercesc::DOMNodeFilter::SHOW_ELEMENT,NULL,true); } catch(const xercesc::XMLException& e){
+		std::cout << "Erro" << std::endl;
+		return 1;
+	}
+
+	xercesc::DOMNode* current_node = NULL;
+	std::string thisNodeName;
+	std::string parentNodeName;
+
+	Module* module = NULL;
+	Attribute* attribute = NULL;
+	Method * method = NULL;
+	Parameter * parameter = NULL;
+	Service * service = NULL;
+	bool parentMethod = false;
+	Transaction * transaction = NULL;
+	std::list<Module*> ListModule;  
+	bool newModule = false;
+	std::list<std::string*>ListNewType;
+	for(current_node = walker->nextNode(); current_node != 0; current_node = walker->nextNode()){
+
+		thisNodeName = xercesc::XMLString::transcode(current_node->getNodeName());
+		parentNodeName = xercesc::XMLString::transcode(current_node->getParentNode()->getNodeName());
+		if(parentNodeName=="method"){
+			parentMethod = true;
+		}
+		else if(parentNodeName=="service"){
+			parentMethod = false;
+		}
+		if(thisNodeName == "module"){
+			newModule = true;
+			module = NULL;
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+
+			std::string name;
+			std::string type;
+			ModuleType moduleType;
+
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type"){
+					type= strNodeMapValue;
+					moduleType = ModuleTypeFromString(strNodeMapValue);
+				}
+			}
+			if((type != "hw") && (type!= "sw"))	{
+				printf("Erro[1]\nType %s invalid\n",type.c_str());
+				return 0;
+			}
+			module = new Module(name, moduleType);
+			
+			ListModule.push_back(module);		
+		} else if(thisNodeName == "attribute"){
+			attribute=NULL;
+
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+
+			std::string name;
+			std::string type;
+			std::string string_modifier;
+			Modifier modifier;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type")
+					type = strNodeMapValue;
+				else if(strNodeMapName == "modifier"){
+					string_modifier = strNodeMapValue;
+					modifier = ModifierFromString(string_modifier);
+				}
+			}
+			if(string_modifier!="private" && string_modifier!="protected" &&  string_modifier!="public"){
+				printf("Erro[2]\nType %s invalid\n",string_modifier.c_str());
+				return 0;
+			}
+
+			if(type == "string")
+				type = "std::string";
+			attribute = new Attribute(name,type,modifier);
+			
+			module->getAttributes()->push_back(attribute);		
+		} else if(thisNodeName=="method"){
+			method = NULL;
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+		  
+			std::string name;
+			std::string type;
+			std::string string_modifier;
+			Modifier modifier;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type")
+					type = strNodeMapValue;
+				else if(strNodeMapName == "modifier"){
+					string_modifier=strNodeMapValue;
+					modifier=ModifierFromString(string_modifier);
+				}
+			}
+			if(string_modifier!="private" && string_modifier!="protected" && string_modifier!="public"){
+				printf("Erro[3]\nType %s invalid\n",string_modifier.c_str());
+				return 0;
+			}
+			if(type == "string")
+				type = "std::string";
+
+			method = new Method(name,type,modifier);
+			method->setService(0);
+			module->getMethods()->push_back(method);
+		}else if(thisNodeName=="parameter"){
+			parameter = NULL;
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+		  
+		  	std::string name;
+		  	std::string type;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type")
+					type = strNodeMapValue;
+			}
+
+			if(type == "string")
+				type = "std::string";
+
+			parameter = new Parameter(name,type);
+			if(parentMethod){
+				method->getParameters()->push_back(parameter);
+			}
+			else{
+				service->getParameters()->push_back(parameter);
+			}
+		}
+		else if(thisNodeName=="service"){
+			service = NULL;
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+		  
+		  	std::string name;
+		  	std::string type;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type")
+					type = strNodeMapValue;
+			}
+
+			if(type == "string")
+				type = "std::string";
+
+			service = new Service(name,type);
+			setMethod(module->getMethods(),name);
+			module->getServices()->push_back(service);
+
+		}
+		else if(thisNodeName == "transaction"){
+			transaction = NULL;
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+		  
+		  	std::string caller;
+		  	std::string callee;
+		  	std::string service_callee;
+
+			for(current_node = walker->nextNode(); current_node != 0; current_node = walker->nextNode()){
+				thisNodeName = xercesc::XMLString::transcode(current_node->getNodeName());
+				parentNodeName = xercesc::XMLString::transcode(current_node->getParentNode()->getNodeName());
+				
+
+				if(thisNodeName == "callee"){
+				 	callee = xercesc::XMLString::transcode(current_node->getFirstChild()->getNodeValue());
+				}
+				else if(thisNodeName == "caller"){
+				 	caller = xercesc::XMLString::transcode(current_node->getFirstChild()->getNodeValue());
+				}
+				else if(thisNodeName == "service"){
+				 	service_callee = xercesc::XMLString::transcode(current_node->getFirstChild()->getNodeValue()); 
+				}
+			}
+			if(callee == caller){
+				printf("Erro[4]\nCaller and Callee are the same\n");
+				return 0;
+			}
+			Module * module_aux = NULL;
+			module_aux = findModule(&ListModule,callee);
+			if(module_aux == NULL){
+				printf("Erro[5]\nModule callee doesnt exist\n");
+				return 0;
+			}
+			module_aux = findModule(&ListModule,caller);
+			if(module_aux==NULL){
+				printf("Erro[6]\nModule caller doesnt exist\n");
+				return 0;
+			}
+		}
+
+	}
 return 0;
 }
