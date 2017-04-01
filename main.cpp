@@ -32,6 +32,14 @@
 #include "ExecutionEnvironment.hpp"
 #include "ParserErrorHandler.hpp"
 
+Element* findElement (std::list<Element*> *mylist, std::string toFind){
+    for (std::list<Element*>::iterator it=mylist->begin(); it != mylist->end(); ++it)
+         if((*it)->getName() == toFind){
+         	return *it;
+         }
+    return NULL;
+}
+
 void setMethod(std::list<Method*> *mylist, std::string name_toFind){
     for (std::list<Method*>::iterator it=mylist->begin(); it != mylist->end(); ++it){
          if((*it)->getName() == name_toFind){
@@ -301,6 +309,140 @@ try { xercesc::XMLPlatformUtils::Initialize(); }
 			if(module_aux==NULL){
 				printf("Erro[6]\nModule caller doesnt exist\n");
 				return 0;
+			}
+		}
+
+	}
+
+//OBJECT DIAGRAM
+
+	parser->loadGrammar(xercesc::XMLString::transcode("objectDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
+	parser->parse(xercesc::XMLString::transcode("input/objectDiagram.xml"));
+
+	if (parser->getErrorCount() == 0)
+        std::cout << "OBJECT XML file validated against the schema successfully\n" << std::endl;
+    else
+        std::cout << "XML file doesn't conform to the schema\n" << std::endl;
+
+	doc = parser->getDocument();
+	docRootNode = doc->getDocumentElement();
+
+	try { walker = doc->createNodeIterator(docRootNode,xercesc::DOMNodeFilter::SHOW_ELEMENT,NULL,true); } catch(const xercesc::XMLException& e){
+		std::cout << "Erro" << std::endl;
+		return 1;
+	}
+
+	current_node = NULL;
+	Element * element = NULL;
+	Restriction * restriction = NULL;
+	Dependency * dependency = NULL;
+	std::list<Dependency*>  ListDependency;
+	std::list<Element*> ListElement;  
+	for(current_node = walker->nextNode(); current_node != 0; current_node = walker->nextNode()){
+
+		thisNodeName = xercesc::XMLString::transcode(current_node->getNodeName());
+		parentNodeName = xercesc::XMLString::transcode(current_node->getParentNode()->getNodeName());
+		if(thisNodeName == "element"){
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+
+			std::string name;
+			std::string type;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "type")
+					type = strNodeMapValue;
+			}
+			Module*module_instance = NULL;
+			element = new Element(name, type);
+			ListElement.push_back(element);
+			if(type != "transaction"){
+				module_instance = findModule(&ListModule,type);
+				if(module_instance == NULL){
+					printf("Erro[8]\n Object Type Invalid %s\n",type.c_str());
+					return 0;
+				}
+				else{
+					module_instance->getInstances()->push_back(element);
+				}
+			}
+
+		} else if(thisNodeName == "restriction"){
+			restriction=NULL;
+
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+
+			std::string name;
+			std::string value;
+
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				xercesc::DOMNode* currentNamedNode = atts->item(i);
+
+				std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));
+
+				if(strNodeMapName == "name")
+					name = strNodeMapValue;
+				else if(strNodeMapName == "value")
+					value = strNodeMapValue;
+			}
+		
+			restriction = new Restriction(name,value);
+			element->getRestrictions()->push_back(restriction);
+		}
+		else if(thisNodeName == "dependency"){
+			xercesc::DOMNamedNodeMap* atts = current_node->getAttributes();
+		 	dependency = NULL;
+		  	std::string caller;
+		  	std::string callee;
+		  	std::string transaction;
+			xercesc::DOMNode* node_aux;
+		  	node_aux = walker->nextNode();
+		  	for(int i=0;i<3;i++){
+				thisNodeName = xercesc::XMLString::transcode(node_aux->getNodeName());
+				parentNodeName = xercesc::XMLString::transcode(node_aux->getParentNode()->getNodeName());
+				
+				if(thisNodeName == "callee"){
+				 	callee = xercesc::XMLString::transcode(node_aux->getFirstChild()->getNodeValue());
+				 	node_aux = walker->nextNode();
+				}
+				else if(thisNodeName == "caller"){
+				 	caller = xercesc::XMLString::transcode(node_aux->getFirstChild()->getNodeValue());
+				 	node_aux = walker->nextNode();
+				}
+				else if(thisNodeName == "transaction"){
+				 	transaction = xercesc::XMLString::transcode(node_aux->getFirstChild()->getNodeValue()); 
+				}
+			}
+			if(callee == caller){
+				printf("Erro[9]\nCaller and Callee are the same\n");
+				return 0;
+			}
+			Element * element1=NULL;
+			element1 = findElement(&ListElement,callee);
+			if(element1==NULL){
+				printf("Erro[10]\nElement callee doesnt exist\n");
+				return 0;
+			}
+
+			Element * element2=NULL;
+			element2 = findElement(&ListElement,caller);
+			if(element1==NULL){
+				printf("Erro[11]\nElement caller doesnt exist\n");
+				return 0;
+			}
+			dependency = new Dependency(element1,element2,findElement(&ListElement,transaction));
+			if(dependency == NULL){
+				printf("Erro[12]\nTransaction doesnt exist\n");
+				return 0;
+			}else{
+				ListDependency.push_back(dependency);
 			}
 		}
 
