@@ -32,6 +32,8 @@
 #include "ExecutionEnvironment.hpp"
 #include "ParserErrorHandler.hpp"
 
+#include "OutputCProject.hpp"
+
 
 ///Trecho do SYSTEM C 
 
@@ -1578,7 +1580,10 @@ int main(){
 // 		printf("Erro[22]\nExecutionEnvironment must occur at least once\n");
 // 	}
 	//SystemC Start
+  	
   	writeClass(&ListModule, &ListTransaction, &ListNewType, frameMaster->getFrames());
   	writeMain(&ListModule, &ListTransaction);
+  	
+  	OutputCProject output;
 
 }
