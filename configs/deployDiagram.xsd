@@ -1,0 +1,73 @@
+<?xml version="1.0" ?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="diagram">
+        <xs:complexType>
+            <xs:sequence>
+            
+                <xs:element name="devices" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                        
+                            <xs:element name="device" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                    
+                                        <xs:element name="executionsEnvironment">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                    
+                                                                
+                                                    <xs:element name="executionEnvironment" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                
+                                                                <xs:element name="components" minOccurs="0">
+                                                                    <xs:complexType>
+                                                                        <xs:sequence>
+                                                                        
+                                                                
+                                                                            <xs:element name="component" minOccurs="0" maxOccurs="unbounded">
+                                                                                <xs:complexType>
+                                                                                    <xs:attribute name="name" type="xs:string" />
+                                                                                </xs:complexType>
+                                                                            </xs:element>
+                                                                        
+                                                                        
+                                                                        </xs:sequence>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                                
+                                                                <xs:element name="artifact" minOccurs="0">
+                                                                    <xs:complexType>
+                                                                        <xs:attribute name="name" type="xs:string" />
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                                
+                                                
+                                                            </xs:sequence>
+                                                            
+                                                            <xs:attribute name="name" type="xs:string" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                    
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        
+                                    
+                                    </xs:sequence>
+                                    
+                                    <xs:attribute name="name" type="xs:string" />
+                                </xs:complexType>
+                            </xs:element>
+                        
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+</xs:schema>

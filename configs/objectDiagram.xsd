@@ -1,0 +1,84 @@
+<?xml version="1.0" ?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="diagram">
+		<xs:complexType>
+			<xs:sequence>
+
+				<xs:element name="elements" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+
+							<xs:element name="element" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="restrictions" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="restriction" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType mixed="true">
+															<xs:attribute name="name" type="xs:string" />   
+															<xs:attribute name="value" type="xs:string" />   
+														</xs:complexType>                                   
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+
+										</xs:element>
+									</xs:sequence>
+
+									<xs:attribute name="name" type="xs:string" />
+									<xs:attribute name="type" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+
+
+				<xs:element name="dependencies" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+
+							<xs:element name="dependency" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="caller" type="xs:string" />
+										<xs:element name="callee" type="xs:string" />
+										<xs:element name="transaction" type="xs:string" />
+
+									</xs:sequence>
+
+								</xs:complexType>
+							</xs:element>
+
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+			</xs:sequence>
+		</xs:complexType>
+
+		<xs:key name="elementName">
+			<xs:selector xpath="./elements/element" />
+			<xs:field xpath="@name" />
+		</xs:key>
+
+		<xs:keyref name="callerElementName" refer="elementName">
+			<xs:selector xpath="./dependencies/dependency" />
+			<xs:field xpath="caller" />
+		</xs:keyref>
+		<xs:keyref name="calleeElementName" refer="elementName">
+			<xs:selector xpath="./dependencies/dependency" />
+			<xs:field xpath="callee" />
+		</xs:keyref>
+		<xs:keyref name="transactionElementName" refer="elementName">
+			<xs:selector xpath="./dependencies/dependency" />
+			<xs:field xpath="transaction" />
+		</xs:keyref>
+
+	</xs:element>
+
+</xs:schema>
