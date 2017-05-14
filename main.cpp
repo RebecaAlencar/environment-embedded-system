@@ -74,7 +74,7 @@ try { xercesc::XMLPlatformUtils::Initialize(); }
 	parser->setDoNamespaces(true);
 	parser->setDoSchema(true);
 	parser->setValidationConstraintFatal(true);
-	parser->loadGrammar(xercesc::XMLString::transcode("classDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
+	parser->loadGrammar(xercesc::XMLString::transcode("configs/classDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
 	parser->parse(xercesc::XMLString::transcode("input/classDiagram.xml"));
 	if (parser->getErrorCount() == 0)
         std::cout << "CLASS XML file validated against the schema successfully\n" << std::endl;
@@ -316,7 +316,7 @@ try { xercesc::XMLPlatformUtils::Initialize(); }
 
 //OBJECT DIAGRAM
 
-	parser->loadGrammar(xercesc::XMLString::transcode("objectDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
+	parser->loadGrammar(xercesc::XMLString::transcode("config/objectDiagram.xsd"), xercesc::Grammar::SchemaGrammarType);
 	parser->parse(xercesc::XMLString::transcode("input/objectDiagram.xml"));
 
 	if (parser->getErrorCount() == 0)
