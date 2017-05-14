@@ -1,0 +1,22 @@
+<diagram>
+	<transactions>
+		<frame type="par">
+			<frame type="loop">
+				<transaction type="sync">
+					<caller>R1</caller>
+					<callee>C1</callee>
+					<service>converterYCRCB</service>
+					<order>2</order>
+				</transaction>
+			</frame>
+			<frame type="loop">
+				<transaction type="async">
+						<caller>C1</caller>
+						<callee>L1</callee>
+						<service>limiarizarYCRCB</service>
+						<order>3</order>
+				</transaction>
+			</frame>
+		</frame>
+	</transactions>
+</diagram>

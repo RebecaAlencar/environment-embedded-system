@@ -1,0 +1,41 @@
+<diagram>
+	<elements>
+		<element name="R1" type="ReadPPM">
+			<restrictions>
+				<restriction name="Restricao1" value="10"/>
+			</restrictions>
+		</element>
+		<element name="C1" type="Converte">
+			<restrictions>
+				<restriction name="Restricao2" value="10"/>
+			</restrictions>
+		</element>
+		<element name="L1" type="Limiariza">
+			<restrictions>
+				<restriction name="Restricao3" value="10"/>
+			</restrictions>
+		</element>
+		<element name="converterYCRCB" type="transaction">
+			<restrictions>
+				<restriction name="RestricaoTransacao" value="10"/>
+			</restrictions>
+		</element>
+		<element name="limiarizarYCRCB" type="transaction">
+			<restrictions>
+				<restriction name="RestricaoTransacao2" value="10"/>
+			</restrictions>
+		</element>
+	</elements>
+	<dependencies>
+		<dependency>
+			<caller>R1</caller>
+			<callee>C1</callee>
+			<transaction>converterYCRCB</transaction>
+		</dependency>
+		<dependency>
+			<caller>C1</caller>
+			<callee>L1</callee>
+			<transaction>limiarizarYCRCB</transaction>
+		</dependency>
+	</dependencies>
+</diagram>							

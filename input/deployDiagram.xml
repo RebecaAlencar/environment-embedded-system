@@ -1,0 +1,20 @@
+<diagram>
+	<devices>
+		<device name="device1">
+			<executionsEnvironment>
+				<executionEnvironment name="executionEnvironment1">
+					<components>
+						<component name="ReadPPM"/>
+					</components>
+					<artifact name="RoundRobin"/>
+				</executionEnvironment>
+				<executionEnvironment name="executionEnvironment2">
+					<components>
+						<component name="Converte"/>
+					</components>
+					<artifact name="FIFO"/>
+				</executionEnvironment>
+			</executionsEnvironment> 
+		</device>
+	</devices>		
+</diagram>
