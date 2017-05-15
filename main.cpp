@@ -1581,9 +1581,9 @@ int main(){
 // 	}
 	//SystemC Start
   	
-  	writeClass(&ListModule, &ListTransaction, &ListNewType, frameMaster->getFrames());
-  	writeMain(&ListModule, &ListTransaction);
+  	//writeClass(&ListModule, &ListTransaction, &ListNewType, frameMaster->getFrames());
+  	//writeMain(&ListModule, &ListTransaction);
   	
-  	OutputCProject output;
+  	OutputCProject output("output", &ListModule, &ListTransaction);
 
 }
