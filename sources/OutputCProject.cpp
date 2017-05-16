@@ -84,6 +84,10 @@ void OutputCProject::createHeaderFiles(std::list<Module*>* modules){
         
         output << std::endl;
         
+        output << "#include <queue>" << std::endl;
+        
+        output << std::endl;
+        
         output << "class " << (*it)->getName() << " {" << std::endl;
         output << std::endl;
         
@@ -92,13 +96,40 @@ void OutputCProject::createHeaderFiles(std::list<Module*>* modules){
         output << "\t\t" << (*it)->getName() << "();" << std::endl;
         output << "\t\t" << "void run();" << std::endl;
         
-        // print services data
+        for (std::list<Service*>::iterator jt = (*it)->getServices()->begin(); jt != (*it)->getServices()->end(); ++jt){
+            output << "\t\t" << "void " << (*jt)->getName() << "_schedule(";
+            
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt)
+                output << (*kt)->getType() << " " << (*kt)->getName() << ", ";
+
+            output << "bool *ret, bool *finished);" << std::endl;
+        }
+        
+        // print services data when it is using a service
         
         output << std::endl;
         
         output << "\t" << "private:" << std::endl;
         
-        // print services instances
+        for (std::list<Service*>::iterator jt = (*it)->getServices()->begin(); jt != (*it)->getServices()->end(); ++jt){
+            output << "\t\t" << (*jt)->getType() << " " << (*jt)->getName() << "(";
+            
+            bool firstParam = true;
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt){
+                if(!firstParam)
+                    output << ", ";
+                
+                output << (*kt)->getType() << " " << (*kt)->getName();
+                
+                firstParam = false;
+            }
+
+            output << ");" << std::endl;
+            
+            output << "\t\t" << "std::queue<Data_" << (*it)->getName() << "_" << (*jt)->getName() << "> q_" << (*jt)->getName() << ";" << std::endl;
+        }
+        
+        // print services instances when it is using a service
         
         output << std::endl;
         
@@ -127,7 +158,7 @@ void OutputCProject::createSourceFiles(std::list<Module*>* modules){
         
         output << "void " << (*it)->getName() << "::run(){" << std::endl;
         
-        // print flow
+        // print flow of run
         
         output << "}" << std::endl;
         
