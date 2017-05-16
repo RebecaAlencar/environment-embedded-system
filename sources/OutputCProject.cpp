@@ -5,12 +5,29 @@ OutputCProject::OutputCProject(std::string output_dir,
                                 std::list<Transaction*>* transactions){
     this->output_dir = output_dir;
     
+    boost::filesystem::path dir(output_dir);
+    boost::filesystem::create_directory(dir);
+    
+    std::stringstream header_dir_str;
+    header_dir_str << this->output_dir << "/headers";
+    boost::filesystem::path headers_dir(header_dir_str.str().c_str());
+    boost::filesystem::create_directory(headers_dir);
+    
+    std::stringstream source_dir_str;
+    source_dir_str << this->output_dir << "/sources";
+    boost::filesystem::path sources_dir(source_dir_str.str().c_str());
+    boost::filesystem::create_directory(sources_dir);
+    
     createMainFile(modules, transactions);
+    createHeaderFiles(modules);
+    createSourceFiles(modules);
 }
 
 void OutputCProject::createMainFile(std::list<Module*>* modules,
                                     std::list<Transaction*>* transactions){
-    std::ofstream output("output/main.cpp");
+    std::stringstream ss;
+    ss << this->output_dir << "/main.cpp";
+    std::ofstream output(ss.str().c_str());
     
     output << "#include <omp.h>" << std::endl;
     
@@ -54,10 +71,70 @@ void OutputCProject::createMainFile(std::list<Module*>* modules,
     output.close();
 }
 
-void OutputCProject::createHeaderFiles(){
-
+void OutputCProject::createHeaderFiles(std::list<Module*>* modules){
+    for (std::list<Module*>::iterator it = modules->begin(); it != modules->end(); ++it){
+        std::stringstream ss;
+        ss << this->output_dir << "/headers/" << (*it)->getName() << ".h";
+        std::ofstream output(ss.str().c_str());
+        
+        std::string moduleName = (*it)->getName();
+        transform(moduleName.begin(), moduleName.end(), moduleName.begin(), ::toupper);
+        output << "#ifndef " << moduleName << "_H" << std::endl;
+        output << "#define " << moduleName << "_H" << std::endl;
+        
+        output << std::endl;
+        
+        output << "class " << (*it)->getName() << " {" << std::endl;
+        output << std::endl;
+        
+        output << "\t" << "public:" << std::endl;
+        
+        output << "\t\t" << (*it)->getName() << "();" << std::endl;
+        output << "\t\t" << "void run();" << std::endl;
+        
+        // print services data
+        
+        output << std::endl;
+        
+        output << "\t" << "private:" << std::endl;
+        
+        // print services instances
+        
+        output << std::endl;
+        
+        output << "}" << std::endl;
+        
+        output << std::endl;
+        
+        output << "#endif" << std::endl;
+        
+        output.close();
+    }
 }
 
-void OutputCProject::createSourceFiles(){
-
+void OutputCProject::createSourceFiles(std::list<Module*>* modules){
+    for (std::list<Module*>::iterator it = modules->begin(); it != modules->end(); ++it){
+        std::stringstream ss;
+        ss << this->output_dir << "/sources/" << (*it)->getName() << ".c";
+        std::ofstream output(ss.str().c_str());
+        
+        output << "#include \"" << (*it)->getName() << ".h\"" << std::endl;
+        
+        output << std::endl;
+        
+        output << (*it)->getName() << "::" << (*it)->getName() << "(){}" << std::endl;
+        output << std::endl;
+        
+        output << "void " << (*it)->getName() << "::run(){" << std::endl;
+        
+        // print flow
+        
+        output << "}" << std::endl;
+        
+        // print services data
+        
+        output << std::endl;
+        
+        output.close();
+    }
 }
