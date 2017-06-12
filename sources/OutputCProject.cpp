@@ -126,6 +126,8 @@ void OutputCProject::createHeaderFiles(std::list<Module*>* modules){
 
             output << ");" << std::endl;
             
+            output << "\t\t" << "void " << (*jt)->getName() << "_run();" << std::endl;
+            
             output << "\t\t" << "std::queue<Data_" << (*it)->getName() << "_" << (*jt)->getName() << "> q_" << (*jt)->getName() << ";" << std::endl;
         }
         
@@ -158,9 +160,118 @@ void OutputCProject::createSourceFiles(std::list<Module*>* modules){
         
         output << "void " << (*it)->getName() << "::run(){" << std::endl;
         
-        // print flow of run
+        output << "\t" << "while(TRUE){" << std::endl;
+        
+        /*
+         * Service call
+         */
+        for (std::list<Service*>::iterator jt = (*it)->getServices()->begin(); jt != (*it)->getServices()->end(); ++jt){
+            output << "\t\t" << (*jt)->getName() << "_run();" << std::endl;
+        }
+
+        output << "\t" << "}" << std::endl;
         
         output << "}" << std::endl;
+        
+        output << std::endl;
+        
+        /*
+         * Services offered - service function
+         */
+        for (std::list<Service*>::iterator jt = (*it)->getServices()->begin(); jt != (*it)->getServices()->end(); ++jt){
+            output << (*jt)->getType() << " " << (*it)->getName() << "::" <<  (*jt)->getName() << "(";
+            
+            bool firstParam = true;
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt){
+                if(!firstParam)
+                    output << ", ";
+                
+                output << (*kt)->getType() << " " << (*kt)->getName();
+                
+                firstParam = false;
+            }
+
+            output << "){" << std::endl;
+            
+            // service function
+            
+            output << "}" << std::endl;
+        }
+        
+        output << std::endl;
+        
+        /*
+         * Services offered - schedule & run
+         */
+        for (std::list<Service*>::iterator jt = (*it)->getServices()->begin(); jt != (*it)->getServices()->end(); ++jt){
+            /*
+             * Schedule function
+             */
+            output << "void " << (*it)->getName() << "::" << (*jt)->getName() << "_schedule(";
+            
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt)
+                output << (*kt)->getType() << " " << (*kt)->getName() << ", ";
+
+            output << "bool *ret, bool *finished){" << std::endl;
+            
+            output << "\t" << "Data_" << (*it)->getName() << "_" << (*jt)->getName() << " data;" << std::endl;
+            
+            
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt)
+                output << "\t" << "data." << (*kt)->getName() << " = " << (*kt)->getName() << ";" << std::endl;
+                
+            output << "\t" << "data.ret = ret;" << std::endl;
+            output << "\t" << "data.finished = finished;" << std::endl;
+            
+            output << std::endl;
+          
+        	output << "\t" << "#pragma omp critical" << std::endl;
+        	output << "\t" << "q_" << (*jt)->getName() << ".push(data);" << std::endl;
+            
+            output << "}" << std::endl;
+            
+            output << std::endl;
+            
+            /*
+             * Run function
+             */
+            
+            output << "void " << (*it)->getName() << "::" << (*jt)->getName() << "_run(){" << std::endl;
+             
+            output << "\t" << "if(!" << "q_" << (*jt)->getName() << ".empty()){" << std::endl;
+				
+			output << "\t\t" << "Data_" << (*it)->getName() << "_" << (*jt)->getName() << " data = q_" << (*jt)->getName() << ".front();" << std::endl;
+      
+            output << std::endl;
+      
+			output << "\t\t" << "#pragma omp critical" << std::endl;
+			output << "\t\t" << "q_" << (*jt)->getName() << ".pop();" << std::endl;
+			
+			output << std::endl;
+
+			output << "\t\t" << "*(data.ret) = " << (*jt)->getName() << "(";
+			
+			bool firstParam = true;
+            for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt){
+                if(!firstParam)
+                    output << ", ";
+                
+                output << "data." << (*kt)->getName();
+                
+                firstParam = false;
+            }
+            
+            output << ");" << std::endl;
+			
+			output << std::endl;
+      
+			output << "\t\t" << "*(data.finished) = true;" << std::endl;
+            output << "\t" << "}" << std::endl;
+            
+            output << "}" << std::endl;
+            
+            output << std::endl;
+        }
         
         // print services data
         
