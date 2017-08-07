@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 #include <list>
 #include <boost/filesystem.hpp>
 
@@ -16,8 +17,10 @@ class OutputCProject {
 private:
 	std::string output_dir;
 	void createMainFile(std::list<Module*>*, std::list<Transaction*>*);
-	void createHeaderFiles(std::list<Module*>*);
-	void createSourceFiles(std::list<Module*>*);
+	void createConfigFile();
+	void createTypes(std::ofstream&, Module*);
+	void createHeaderFiles(std::list<Module*>*, std::list<Transaction*>*);
+	void createSourceFiles(std::list<Module*>*, std::list<Transaction*>*);
 	
 public:
 	OutputCProject(std::string, std::list<Module*>*, std::list<Transaction*>*);
