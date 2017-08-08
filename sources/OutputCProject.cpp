@@ -17,7 +17,9 @@ OutputCProject::OutputCProject(std::string output_dir,
     source_dir_str << this->output_dir << "/sources";
     boost::filesystem::path sources_dir(source_dir_str.str().c_str());
     boost::filesystem::create_directory(sources_dir);
-    
+
+    createMakefile();
+
     createConfigFile();
     createMainFile(modules, transactions);
     createHeaderFiles(modules, transactions);
@@ -93,8 +95,20 @@ void OutputCProject::createConfigFile(){
     
     output << "#include <cstdio>" << std::endl;
     output << "#include <cstdlib>" << std::endl;
+    output << "#include <functional>" << std::endl;
     
     output << std::endl;
+    
+    output.close();
+}
+
+void OutputCProject::createMakefile(){
+    std::stringstream ss;
+    ss << this->output_dir << "/Makefile";
+    std::ofstream output(ss.str().c_str());
+    
+    output << "all:" << std::endl;
+    output << "\t" << "g++ main.cpp sources/*.cpp -o a.out -I headers -std=c++11" << std::endl;
     
     output.close();
 }
@@ -190,7 +204,7 @@ void OutputCProject::createHeaderFiles(std::list<Module*>* modules, std::list<Tr
             for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt)
                 output << (*kt)->getType() << " " << (*kt)->getName() << ", ";
 
-            output << (*jt)->getType() << " *ret);" << std::endl;
+            output << "std::function<void(" << (*jt)->getType() << ")> callback);" << std::endl;
             
             output << std::endl;
         }
@@ -400,22 +414,24 @@ void OutputCProject::createSourceFiles(std::list<Module*>* modules, std::list<Tr
             output << "){" << std::endl;
 
             output << "\t" << (*jt)->getType() << " ret;" << std::endl;
-            output << "\t" << "bool finished;" << std::endl;
+            output << "\t" << "bool signal = false;" << std::endl;
             
             output << std::endl;
-            
+           
             output << "\t" << "this->" << (*jt)->getName() << "_schedule(";
             for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt){
                 output << (*kt)->getName() << ", ";
             }
             
-            output << "&ret, &finished);" << std::endl;
+            output << "&ret, &signal);" << std::endl;
+            
+            output << std::endl;
+            
+            output << "\t" << "while(!signal);" << std::endl;
             
             output << std::endl;
             
             output << "\t" << "return ret;" << std::endl;
-            
-            output << std::endl;
           
             output << "}" << std::endl;
             
@@ -429,9 +445,10 @@ void OutputCProject::createSourceFiles(std::list<Module*>* modules, std::list<Tr
             for (std::list<Parameter*>::iterator kt = (*jt)->getParameters()->begin(); kt != (*jt)->getParameters()->end(); ++kt)
                 output << (*kt)->getType() << " " << (*kt)->getName() << ", ";
 
-            output << (*jt)->getType() << "* ret){" << std::endl;
+            output << "std::function<void(" << (*jt)->getType() << ")> callback){" << std::endl;
 
-            output << "\t" << "bool finished;" << std::endl;
+            output << "\t" << (*jt)->getType() << " ret;" << std::endl;
+            output << "\t" << "bool signal = false;" << std::endl;
             
             output << std::endl;
             
@@ -440,9 +457,17 @@ void OutputCProject::createSourceFiles(std::list<Module*>* modules, std::list<Tr
                 output << (*kt)->getName() << ", ";
             }
             
-            output << "ret, &finished);";
+            output << "&ret, &signal);" << std::endl;
             
             output << std::endl;
+            
+            output << "\t" << "#pragma opm parallel" << std::endl;
+            output << "\t" << "{" << std::endl;
+           
+            output << "\t\t" << "while(!signal);" << std::endl;
+            output << "\t\t" << "callback(ret);" << std::endl;
+            
+            output << "\t" << "}" << std::endl;
           
             output << "}" << std::endl;
             

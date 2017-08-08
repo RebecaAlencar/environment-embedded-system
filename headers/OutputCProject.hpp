@@ -18,6 +18,7 @@ private:
 	std::string output_dir;
 	void createMainFile(std::list<Module*>*, std::list<Transaction*>*);
 	void createConfigFile();
+	void createMakefile();
 	void createTypes(std::ofstream&, Module*);
 	void createHeaderFiles(std::list<Module*>*, std::list<Transaction*>*);
 	void createSourceFiles(std::list<Module*>*, std::list<Transaction*>*);
