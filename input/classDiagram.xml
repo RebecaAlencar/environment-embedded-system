@@ -1,96 +1,112 @@
 <diagram>
 	<modules>
-		<module name="ReadPPM" type="sw">
+		
+		<module name="Sensor" type="sw">
 			<attributes>
-				<attribute name="columns" type="int" modifier="private"/>
-				<attribute name="rows" type="int" modifier="private"/>
-				<attribute name="rgb_max" type="int" modifier="private"/>
 			</attributes>
 			<methods>
-				<method name="make_pixels" type="void" modifier="public">
+				<method name="checkForItem" type="void" modifier="private">
 					<parameters>
-					</parameters>
-				</method>
-				<method name="read_file" type="FILE*" modifier="private">
-					<parameters>
-						<parameter name="name" type="string" />
 					</parameters>
 				</method>
 			</methods>
 			<services>
 			</services>
 		</module>
-		<module name="Converte" type="hw">
+		
+		<module name="Camera" type="sw">
 			<attributes>
 			</attributes>
 			<methods>
-				<method name="converterYCRCB" type="int" modifier="public">
+				<method name="getImage" type="image" modifier="public">
 					<parameters>
-						<parameter name="pRGB" type="int*"/>
-					</parameters>
-				</method>
-			</methods>
-			<services >
-				<service name="converterYCRCB" type="int">
-					<parameters>
-						<parameter name="pRGB" type="int*"/>
-					</parameters>
-				</service>
-			</services>
-		</module>
-		<module name="Limiariza" type="hw">
-			<attributes>
-			</attributes>
-			<methods>
-				<method name="limiarizarYCRCB" type="int" modifier="public">
-					<parameters>
-						<parameter name="pixelrgb" type="int*"/>
-					</parameters>
-				</method>
-			</methods>
-			<services >
-				<service name="limiarizarYCRCB" type="int">
-					<parameters>
-						<parameter name="pixelrgb" type="int*"/>
-					</parameters>
-				</service>
-			</services>
-		</module>
-		<module name="WritePPM" type="sw">
-			<attributes>
-				<attribute name="columns" type="int" modifier="private"/>
-				<attribute name="rows" type="int" modifier="private"/>
-			</attributes>
-			<methods>
-				<method name="writeFile" type="bool" modifier="public">
-					<parameters>
-						<parameter name="file" type="FILE*" />
-						<parameter name="blackwhite" type="int" />
 					</parameters>
 				</method>
 			</methods>
 			<services>
-				<service name="writeFile" type="bool">
+				<service name="getImage" type="image" modifier="public">
 					<parameters>
-						<parameter name="file" type="FILE*" />
-						<parameter name="blackwhite" type="int" />
 					</parameters>
 				</service>
 			</services>
 		</module>
+		
+		<module name="Actuator" type="sw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="setStatus" type="bool" modifier="public">
+					<parameters>
+						<parameter name="open" type="bool"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="setStatus" type="bool" modifier="public">
+					<parameters>
+						<parameter name="open" type="bool"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+		<module name="Controller" type="sw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="verifyItem" type="bool" modifier="public">
+					<parameters>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="verifyItem" type="bool" modifier="public">
+					<parameters>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+		<module name="ProcessingUnit" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="analyzeItem" type="bool" modifier="public">
+					<parameters>
+						<parameter name="img" type="image"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="analyzeItem" type="bool" modifier="public">
+					<parameters>
+						<parameter name="img" type="image"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+				
 	</modules>
 	<transactions>
 		<transaction>
-			<caller>ReadPPM</caller>
-			<callee>Converte</callee>
+			<caller>Sensor</caller>
+			<callee>Controller</callee>
+			<service>verifyItem</service>
 		</transaction>
 		<transaction>
-			<caller>Converte</caller>
-			<callee>Limiariza</callee>
+			<caller>Controller</caller>
+			<callee>Camera</callee>
+			<service>getImage</service>
 		</transaction>
 		<transaction>
-			<caller>ReadPPM</caller>
-			<callee>WritePPM</callee>
+			<caller>Controller</caller>
+			<callee>ProcessingUnit</callee>
+			<service>analyzeItem</service>
+		</transaction>
+		<transaction>
+			<caller>Controller</caller>
+			<callee>Actuator</callee>
+			<service>setStatus</service>
 		</transaction>
 	</transactions>
 </diagram>

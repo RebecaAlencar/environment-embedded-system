@@ -1,22 +1,77 @@
 <diagram>
 	<transactions>
 		<frame type="par">
-			<frame type="loop">
+			<frame type="seq">
+
+				<entry method="checkForItem" target="caller" />
+
+				<transaction type="async">
+					<caller>sensor1</caller>
+					<callee>ctrl1</callee>
+					<service>verifyItem</service>
+					<order>1</order>
+				</transaction>
+
 				<transaction type="sync">
-					<caller>R1</caller>
-					<callee>C1</callee>
-					<service>converterYCRCB</service>
+					<caller>ctrl1</caller>
+					<callee>cam1</callee>
+					<service>getImage</service>
+					<order>1.1</order>
+				</transaction>
+
+				<transaction type="sync">
+					<caller>ctrl1</caller>
+					<callee>pu1</callee>
+					<service>analyzeItem</service>
+					<order>1.2</order>
+				</transaction>
+
+				<transaction type="async">
+					<caller>ctrl1</caller>
+					<callee>act1</callee>
+					<service>setStatus</service>
+					<order>1.3</order>
+				</transaction>
+
+				<exit target="callee" />
+
+			</frame>
+			<frame type="seq">
+
+				<entry method="checkForItem" target="caller" />
+
+				<transaction type="async">
+					<caller>sensor2</caller>
+					<callee>ctrl2</callee>
+					<service>verifyItem</service>
 					<order>2</order>
 				</transaction>
-			</frame>
-			<frame type="loop">
-				<transaction type="async">
-						<caller>C1</caller>
-						<callee>L1</callee>
-						<service>limiarizarYCRCB</service>
-						<order>3</order>
+
+				<transaction type="sync">
+					<caller>ctrl2</caller>
+					<callee>cam2</callee>
+					<service>getImage</service>
+					<order>2.1</order>
 				</transaction>
+
+				<transaction type="sync">
+					<caller>ctrl2</caller>
+					<callee>pu1</callee>
+					<service>analyzeItem</service>
+					<order>2.2</order>
+				</transaction>
+
+				<transaction type="async">
+					<caller>ctrl2</caller>
+					<callee>act2</callee>
+					<service>setStatus</service>
+					<order>2.3</order>
+				</transaction>
+
+				<exit target="callee" />
+
 			</frame>
 		</frame>
 	</transactions>
-</diagram>
+</diagram>						
+

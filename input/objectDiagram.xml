@@ -1,41 +1,124 @@
 <diagram>
 	<elements>
-		<element name="R1" type="ReadPPM">
+		<element name="ctrl1" type="Controller">
 			<restrictions>
-				<restriction name="Restricao1" value="10"/>
 			</restrictions>
 		</element>
-		<element name="C1" type="Converte">
+		<element name="sensor1" type="Sensor">
 			<restrictions>
-				<restriction name="Restricao2" value="10"/>
 			</restrictions>
 		</element>
-		<element name="L1" type="Limiariza">
+		<element name="cam1" type="Camera">
 			<restrictions>
-				<restriction name="Restricao3" value="10"/>
 			</restrictions>
 		</element>
-		<element name="converterYCRCB" type="transaction">
+		<element name="act1" type="Actuator">
 			<restrictions>
-				<restriction name="RestricaoTransacao" value="10"/>
 			</restrictions>
 		</element>
-		<element name="limiarizarYCRCB" type="transaction">
+		<element name="pu1" type="ProcessingUnit">
 			<restrictions>
-				<restriction name="RestricaoTransacao2" value="10"/>
 			</restrictions>
 		</element>
+		<element name="ctrl2" type="Controller">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="sensor2" type="Sensor">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="cam2" type="Camera">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="act2" type="Actuator">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		
+		
+		<element name="verifyItemTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		<element name="getImageTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="analyzeItemTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="setStatusTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		
+		
+		<element name="verifyItemTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		<element name="getImageTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="analyzeItemTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="setStatusTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
 	</elements>
 	<dependencies>
 		<dependency>
-			<caller>R1</caller>
-			<callee>C1</callee>
-			<transaction>converterYCRCB</transaction>
+			<caller>sensor1</caller>
+			<callee>ctrl1</callee>
+			<transaction>verifyItemTransaction1</transaction>
 		</dependency>
 		<dependency>
-			<caller>C1</caller>
-			<callee>L1</callee>
-			<transaction>limiarizarYCRCB</transaction>
+			<caller>ctrl1</caller>
+			<callee>cam1</callee>
+			<transaction>getImageTransaction1</transaction>
+		</dependency>
+		<dependency>
+			<caller>ctrl1</caller>
+			<callee>pu1</callee>
+			<transaction>analyzeItemTransaction1</transaction>
+		</dependency>
+		<dependency>
+			<caller>ctrl1</caller>
+			<callee>act1</callee>
+			<transaction>setStatusTransaction1</transaction>
+		</dependency>
+		
+		<dependency>
+			<caller>sensor2</caller>
+			<callee>ctrl2</callee>
+			<transaction>verifyItemTransaction2</transaction>
+		</dependency>
+		<dependency>
+			<caller>ctrl2</caller>
+			<callee>cam2</callee>
+			<transaction>getImageTransaction2</transaction>
+		</dependency>
+		<dependency>
+			<caller>ctrl2</caller>
+			<callee>pu1</callee>
+			<transaction>analyzeItemTransaction2</transaction>
+		</dependency>
+		<dependency>
+			<caller>ctrl2</caller>
+			<callee>act2</callee>
+			<transaction>setStatusTransaction2</transaction>
 		</dependency>
 	</dependencies>
 </diagram>							

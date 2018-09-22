@@ -1,0 +1,80 @@
+<diagram>
+	<modules>
+		
+		<module name="ReadImage" type="sw">
+			<attributes>
+				<attribute name="image" type="image" modifier="private"></attribute>
+			</attributes>
+			<methods>
+				<method name="processImage" type="void" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="readppm" type="Image" modifier="private">
+					<parameters>
+						<parameter name="filename" type="string"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+			</services>
+		</module>
+		
+		<module name="WriteImage" type="sw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="writeppm" type="bool" modifier="public">
+					<parameters>
+						<parameter name="filename" type="string"/>
+						<parameter name="image_binary" type="BinaryImage"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="writeppm" type="bool">
+					<parameters>
+						<parameter name="filename" type="string"/>
+						<parameter name="image_binary" type="BinaryImage"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+		<module name="Threshold" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="threshold" type="BinaryImage" modifier="public">
+					<parameters>
+						<parameter name="width" type="int"/>
+						<parameter name="height" type="int"/>
+						<parameter name="image" type="Image"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="threshold" type="BinaryImage">
+					<parameters>
+						<parameter name="width" type="int"/>
+						<parameter name="height" type="int"/>
+						<parameter name="image" type="Image"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+	</modules>
+	<transactions>
+		<transaction>
+			<caller>ReadImage</caller>
+			<callee>Threshold</callee>
+			<service>threshold</service>
+		</transaction>
+		<transaction>
+			<caller>ReadImage</caller>
+			<callee>WriteImage</callee>
+			<service>writeppm</service>
+		</transaction>
+	</transactions>
+</diagram>

@@ -1,0 +1,65 @@
+<diagram>
+	<elements>
+		<element name="reader1" type="ReadImage">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="reader2" type="ReadImage">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="writer1" type="WriteImage">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="writer2" type="WriteImage">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="threshold" type="Threshold">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		<element name="writeTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="thresholdTransaction1" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		<element name="writeTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="thresholdTransaction2" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+	</elements>
+	<dependencies>
+		<dependency>
+			<caller>reader1</caller>
+			<callee>threshold</callee>
+			<transaction>thresholdTransaction1</transaction>
+		</dependency>
+		<dependency>
+			<caller>reader1</caller>
+			<callee>writer1</callee>
+			<transaction>writeTransaction1</transaction>
+		</dependency>
+		<dependency>
+			<caller>reader2</caller>
+			<callee>threshold</callee>
+			<transaction>thresholdTransaction2</transaction>
+		</dependency>
+		<dependency>
+			<caller>reader2</caller>
+			<callee>writer2</callee>
+			<transaction>writeTransaction2</transaction>
+		</dependency>
+	</dependencies>
+</diagram>							

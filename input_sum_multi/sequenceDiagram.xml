@@ -1,0 +1,41 @@
+<diagram>
+	<transactions>
+		<frame type="seq">
+			
+			<frame type="par">
+				<frame type="seq">
+					<entry method="MyRun1" target="caller" />
+					<transaction type="sync">
+						<caller>read</caller>
+						<callee>sum</callee>
+						<service>add</service>
+						<order>1</order>
+					</transaction>
+					<exit target="callee" />
+				</frame>
+				<frame type="seq">
+					<entry method="MyRun2" target="caller" />
+					<transaction type="sync">
+						<caller>read</caller>
+						<callee>multi</callee>
+						<service>multiply</service>
+						<order>2</order>
+					</transaction>
+					<exit target="callee" />
+				</frame>
+			</frame>
+			
+			<frame type="seq">
+				<entry method="MyRun3" target="caller" />
+				<transaction type="sync">
+					<caller>read</caller>
+					<callee>write</callee>
+					<service>writeFile</service>
+					<order>3</order>
+				</transaction>
+				<exit target="callee" />
+			</frame>
+		</frame>
+	</transactions>
+</diagram>						
+

@@ -1,0 +1,52 @@
+<diagram>
+	<elements>
+		<element name="read" type="ReadFile">
+			<restrictions>
+				<restriction name="size" value="2k"/>
+			</restrictions>
+		</element>
+		<element name="write" type="WriteFile">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="multi" type="Multi">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="sum" type="Sum">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+		<element name="writeTransaction" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="multiTransaction" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		<element name="sumTransaction" type="transaction">
+			<restrictions>
+			</restrictions>
+		</element>
+		
+	</elements>
+	<dependencies>
+		<dependency>
+			<caller>read</caller>
+			<callee>write</callee>
+			<transaction>writeTransaction</transaction>
+		</dependency>
+		<dependency>
+			<caller>read</caller>
+			<callee>multi</callee>
+			<transaction>multiTransaction</transaction>
+		</dependency>
+		<dependency>
+			<caller>read</caller>
+			<callee>sum</callee>
+			<transaction>sumTransaction</transaction>
+		</dependency>
+	</dependencies>
+</diagram>							

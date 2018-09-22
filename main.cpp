@@ -22,6 +22,8 @@
 #include "Parameter.hpp"
 #include "Service.hpp"
 #include "Transaction.hpp"
+#include "Entry.hpp"
+//#include "Exit.hpp"
 #include "Element.hpp"
 #include "Restriction.hpp"
 #include "Dependency.hpp"
@@ -34,6 +36,7 @@
 
 #include "OutputCProject.hpp"
 
+int FRAME_ID = 0;
 
 ///Trecho do SYSTEM C 
 
@@ -714,7 +717,7 @@ Element* findElement (std::list<Element*> *mylist, std::string toFind){
 
 bool findDependency (std::list<Dependency*> *mylist, std::string callee , std::string caller, std::string transaction){
     for (std::list<Dependency*>::iterator it=mylist->begin(); it != mylist->end(); ++it){
-        if(((*it)->getCaller()->getName() == caller)&& ((*it)->getCallee()->getName() == callee) && ((*it)->getTransaction()->getName() == transaction)){
+        if(((*it)->getCaller()->getName() == caller)&& ((*it)->getCallee()->getName() == callee)/* && ((*it)->getTransaction()->getName() == transaction)*/){
          	return 1;
          }
      }
@@ -772,13 +775,56 @@ int function(xercesc::DOMNode* current_node, Frame* frameFather,  std::list<Tran
 	if(string_type != "seq" && string_type != "par" && string_type!="loop"){
 		printf("Erro[13]\nType %s invalid\n",string_type.c_str());
 	}
-	Frame * frame = new Frame(frameType);
+	Frame * frame = new Frame(frameType, FRAME_ID++);
 	frameFather->getFrames()->push_back(frame);
 	xercesc::DOMNodeList* childList = current_node->getChildNodes();
+	Entry* lastEntry = NULL;
+	std::string lastEntryMethodName, lastEntryTarget;
 	for(int i = 0; i < childList->getLength(); i++){
 		xercesc::DOMNode* node = childList->item(i);
 		thisNodeName = xercesc::XMLString::transcode(node->getNodeName());
-		if(thisNodeName == "transaction"){
+		
+		if(thisNodeName == "entry"){
+			xercesc::DOMNamedNodeMap* atts = node->getAttributes();
+			
+			lastEntryMethodName = lastEntryTarget = "";
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				  xercesc::DOMNode* currentNamedNode = atts->item(i);
+				  std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				  std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));		  
+				  if(strNodeMapName == "target"){
+				  	lastEntryTarget = strNodeMapValue;
+				  } else if(strNodeMapName == "method"){
+				  	lastEntryMethodName = strNodeMapValue;
+				  }
+			}
+			
+			lastEntry = new Entry();
+			lastEntry->setMethod(NULL);
+			frame->getEntries()->push_back(lastEntry);
+		} else if(thisNodeName == "exit"){
+			xercesc::DOMNamedNodeMap* atts = node->getAttributes();
+			
+			std::string exitTarget = "";
+			for(XMLSize_t i = 0; i < atts->getLength(); i++){
+				  xercesc::DOMNode* currentNamedNode = atts->item(i);
+				  std::string strNodeMapName(xercesc::XMLString::transcode(currentNamedNode->getNodeName()));
+				  std::string strNodeMapValue(xercesc::XMLString::transcode(currentNamedNode->getNodeValue()));		  
+				  if(strNodeMapName == "target"){
+					  exitTarget = strNodeMapValue;
+				  }
+			}
+			
+			if(exitTarget == "callee"){
+				lastEntry->setExitModule(lastEntry->getTransactions()->back()->getCallee());
+				lastEntry->setExitModuleInstance(lastEntry->getTransactions()->back()->getNameCallee());
+			} else {
+				lastEntry->setExitModule(lastEntry->getTransactions()->back()->getCaller());
+				lastEntry->setExitModuleInstance(*(lastEntry->getTransactions()->back()->getNameCaller()->back()));
+			}
+			
+			lastEntry = NULL;
+		} else if(thisNodeName == "transaction"){
 			xercesc::DOMNamedNodeMap* atts = node->getAttributes();
 		  	std::string caller;
 		  	std::string callee;
@@ -818,7 +864,7 @@ int function(xercesc::DOMNode* current_node, Frame* frameFather,  std::list<Tran
 	 		Element * element1 = NULL;
 			element1 = findElement(ListElement,callee);
 			if(element1==NULL){
-				printf("Erro[17]\nElement callee doesnt exist\n");
+				printf("Erro[17]\nElement callee (%s) doesnt exist\n", callee.c_str());
 				return 0;
 			}
 			Element * element2 = NULL;
@@ -841,7 +887,8 @@ int function(xercesc::DOMNode* current_node, Frame* frameFather,  std::list<Tran
 			// 	printf("Erro[x]\nDependency doesnt exist");
 			// 	return 0;
 			// }else{
-				transaction  = findTransaction(ListTransaction,(element2->getValue()),(element1->getValue()),service_callee);
+				transaction  = NULL;//TODO:repor este metodo, ver como vai ficar pois estava ignorando chamadas para objetos diferentes de mesmo tipo//findTransaction(ListTransaction,(element2->getValue()),(element1->getValue()),service_callee);
+				//transaction  = findTransaction(ListTransaction,(element2->getValue()),(element1->getValue()),service_callee);
 				if(transaction == NULL){
 				transaction = new Transaction((element2->getValue()),module_caller,module_callee,service_aux,"NULL",SYNC);
 				ListTransaction->push_back(transaction);
@@ -854,6 +901,20 @@ int function(xercesc::DOMNode* current_node, Frame* frameFather,  std::list<Tran
 				transaction->getNameCaller()->push_back(name_caller);
 				transaction->setNameCallee(callee);
 				frame->getTransactions()->push_back(transaction);
+			} /*else {
+					
+	     		std::string* name_caller = new std::string(caller);
+				transaction->getNameCaller()->push_back(name_caller);	
+				}*/
+			
+			if(lastEntry != NULL){
+				// FIXME:target always caller
+				if(lastEntry->getModule() == NULL){
+					lastEntry->setModule(transaction->getCaller());
+					lastEntry->setModuleInstance(*(transaction->getNameCaller()->back()));
+					lastEntry->setMethod(findMethod(transaction->getCaller()->getMethods(), lastEntryMethodName));
+				}
+				lastEntry->getTransactions()->push_back(transaction);
 			}
 		//Fim do IF
 		}
@@ -979,7 +1040,7 @@ int main(){
 				}
 			}
 			if(string_modifier!="private" && string_modifier!="protected" &&  string_modifier!="public"){
-				printf("Erro[2]\nType %s invalid\n",string_modifier.c_str());
+				printf("Erro[2]\nType %s invalid at %s\n",string_modifier.c_str(), module->getName().c_str());
 				return 0;
 			}
 
@@ -1275,7 +1336,7 @@ int main(){
 	Transaction * aux = NULL;
 	current_node = NULL;
 	Frame * frame = NULL;
-	Frame * frameMaster = new Frame(FrameTypeFromString("0")); //frameType==0 (seq)
+	Frame * frameMaster = new Frame(FrameTypeFromString("SEQ"), FRAME_ID++); //frameType==0 (seq)
 	std::list<Frame*> ListFrame;  
 	std::list<Transaction*> ListTransaction; 
 	for(current_node = walker->nextNode(); current_node != 0; current_node = walker->nextNode()){
@@ -1303,7 +1364,7 @@ int main(){
 						printf("Erro[13]\nType %s invalid\n",string_type.c_str());
 						return 0;
 					}
-					frame = new Frame(frameType);
+					frame = new Frame(frameType, FRAME_ID++);
 					frameMaster->getFrames()->push_back(frame);
 					ListFrame.push_back(frameMaster);	
 			 		xercesc::DOMNodeList* childList = node->getChildNodes();
@@ -1584,6 +1645,6 @@ int main(){
   	//writeClass(&ListModule, &ListTransaction, &ListNewType, frameMaster->getFrames());
   	//writeMain(&ListModule, &ListTransaction);
   	
-  	OutputCProject output("output", &ListModule, &ListTransaction);
+  	OutputCProject output("output", &ListModule, &ListTransaction, &ListFrame);
 
 }

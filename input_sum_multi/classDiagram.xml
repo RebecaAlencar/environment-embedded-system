@@ -1,0 +1,118 @@
+<diagram>
+	<modules>
+		
+		<module name="ReadFile" type="sw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="MyRun1" type="void" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="MyRun1_finish" type="bool" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="MyRun2" type="void" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="MyRun2_finish" type="bool" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="MyRun3" type="void" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+				<method name="MyRun3_finish" type="bool" modifier="private">
+					<parameters>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+			</services>
+		</module>
+		
+		<module name="WriteFile" type="sw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="writeFile" type="int" modifier="public">
+					<parameters>
+						<parameter name="value1" type="int"/>
+						<parameter name="value2" type="int"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="writeFile" type="int">
+					<parameters>
+						<parameter name="value1" type="int"/>
+						<parameter name="value2" type="int"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+		<module name="Sum" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="add" type="int" modifier="public">
+					<parameters>
+						<parameter name="v1" type="int"/>
+						<parameter name="v2" type="int"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="add" type="int">
+					<parameters>
+						<parameter name="v1" type="int"/>
+						<parameter name="v2" type="int"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+		<module name="Multi" type="hw">
+			<attributes>
+			</attributes>
+			<methods>
+				<method name="multiply" type="int" modifier="public">
+					<parameters>
+						<parameter name="v1" type="int"/>
+						<parameter name="v2" type="int"/>
+					</parameters>
+				</method>
+			</methods>
+			<services>
+				<service name="multiply" type="int">
+					<parameters>
+						<parameter name="v1" type="int"/>
+						<parameter name="v2" type="int"/>
+					</parameters>
+				</service>
+			</services>
+		</module>
+		
+	</modules>
+	<transactions>
+		<transaction>
+			<caller>ReadFile</caller>
+			<callee>Sum</callee>
+			<service>add</service>
+		</transaction>
+		<transaction>
+			<caller>ReadFile</caller>
+			<callee>Multi</callee>
+			<service>multiply</service>
+		</transaction>
+		<transaction>
+			<caller>ReadFile</caller>
+			<callee>WriteFile</callee>
+			<service>writeFile</service>
+		</transaction>
+	</transactions>
+</diagram>

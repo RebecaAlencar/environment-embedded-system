@@ -1,0 +1,50 @@
+<diagram>
+	<transactions>
+		<frame type="par">
+			<frame type="seq">
+
+				<entry method="processImage" target="caller" />
+
+				<transaction type="sync">
+					<caller>reader1</caller>
+					<callee>threshold</callee>
+					<service>threshold</service>
+					<order>1</order>
+				</transaction>
+
+				<transaction type="async">
+					<caller>reader1</caller>
+					<callee>writer1</callee>
+					<service>writeppm</service>
+					<order>2</order>
+				</transaction>
+
+				<exit target="caller" />
+
+			</frame>
+			
+			<frame type="seq">
+
+				<entry method="processImage" target="caller" />
+
+				<transaction type="sync">
+					<caller>reader2</caller>
+					<callee>threshold</callee>
+					<service>threshold</service>
+					<order>3</order>
+				</transaction>
+
+				<transaction type="async">
+					<caller>reader2</caller>
+					<callee>writer2</callee>
+					<service>writeppm</service>
+					<order>4</order>
+				</transaction>
+
+				<exit target="caller" />
+
+			</frame>
+		</frame>
+	</transactions>
+</diagram>						
+
